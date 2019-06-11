@@ -1,0 +1,44 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "type": {
+            "required": true,
+            "type": "string"
+        },
+        "type_id": {
+            "required": true,
+            "type": "string"
+        },
+        "requestBody": {
+            "properties": {
+                "mode": {
+                    "default": "r",
+                    "enum": [
+                        "r",
+                        "w",
+                        "rw"
+                    ],
+                    "type": "string"
+                },
+                "scope": {
+                    "default": "public",
+                    "enum": [
+                        "secret",
+                        "public",
+                        "user",
+                        "organization"
+                    ],
+                    "type": "string"
+                },
+                "scope_value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    }
+}

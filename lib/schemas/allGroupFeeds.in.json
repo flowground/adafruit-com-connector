@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "group_key": {
+            "required": true,
+            "type": "string"
+        },
+        "username": {
+            "required": true,
+            "type": "string"
+        }
+    }
+}

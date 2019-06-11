@@ -1,0 +1,63 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "group_key": {
+            "required": true,
+            "type": "string"
+        },
+        "requestBody": {
+            "properties": {
+                "created_at": {
+                    "description": "Optional created_at timestamp which will be applied to all feed values created.",
+                    "type": "string"
+                },
+                "feeds": {
+                    "description": "An array of feed data records with `key` and `value` properties.",
+                    "items": {
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "location": {
+                    "description": "A location record with `lat`, `lon`, and [optional] `ele` properties.",
+                    "properties": {
+                        "ele": {
+                            "type": "number"
+                        },
+                        "lat": {
+                            "type": "number"
+                        },
+                        "lon": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "lat",
+                        "lon"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "feeds"
+            ],
+            "type": "object"
+        }
+    }
+}

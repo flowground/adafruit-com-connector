@@ -1,0 +1,62 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "dashboard_id": {
+            "required": true,
+            "type": "string"
+        },
+        "requestBody": {
+            "properties": {
+                "block_feeds": {
+                    "items": {
+                        "properties": {
+                            "feed_id": {
+                                "type": "string"
+                            },
+                            "group_id": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "column": {
+                    "type": "number"
+                },
+                "dashboard_id": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "object"
+                },
+                "row": {
+                    "type": "number"
+                },
+                "size_x": {
+                    "type": "number"
+                },
+                "size_y": {
+                    "type": "number"
+                },
+                "visual_type": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    }
+}

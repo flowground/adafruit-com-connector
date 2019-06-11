@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "feed_key": {
+            "required": true,
+            "type": "string"
+        },
+        "include": {
+            "type": "string"
+        }
+    }
+}

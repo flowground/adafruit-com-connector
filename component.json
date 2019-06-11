@@ -1,0 +1,1550 @@
+{
+    "title": "Adafruit IO",
+    "description": "### The Internet of Things for Everyone\n\nThe Adafruit IO HTTP API provides access to your Adafruit IO data from any programming language or hardware environment that can speak HTTP. The easiest way to get started is with [an Adafruit IO learn guide](https://learn.adafruit.com/series/adafruit-io-basics) and [a simple Internet of Things capable device like the Feather Huzzah](https://www.adafruit.com/product/2821).\n\nThis API documentation is hosted on GitHub Pages and is available at [https://github.com/adafruit/io-api](https://github.com/adafruit/io-api). For questions or comments visit the [Adafruit IO Forums](https://forums.adafruit.com/viewforum.php?f=56) or the [adafruit-io channel on the Adafruit Discord server](https://discord.gg/adafruit).\n\n#### Authentication\n\nAuthentication for every API request happens through the `X-AIO-Key` header or query parameter and your IO API key. A simple cURL request to get all available feeds for a user with the username \"io_username\" and the key \"io_key_12345\" could look like this:\n\n    $ curl -H \"X-AIO-Key: io_key_12345\" https://io.adafruit.com/api/v2/io_username/feeds\n\nOr like this:\n\n    $ curl \"https://io.adafruit.com/api/v2/io_username/feeds?X-AIO-Key=io_key_12345\n\nUsing the node.js [request](https://github.com/request/request) library, IO HTTP requests are as easy as:\n\n```js\nvar request = require('request');\n\nvar options = {\n  url: 'https://io.adafruit.com/api/v2/io_username/feeds',\n  headers: {\n    'X-AIO-Key': 'io_key_12345',\n    'Content-Type': 'application/json'\n  }\n};\n\nfunction callback(error, response, body) {\n  if (!error && response.statusCode == 200) {\n    var feeds = JSON.parse(body);\n    console.log(feeds.length + \" FEEDS AVAILABLE\");\n\n    feeds.forEach(function (feed) {\n      console.log(feed.name, feed.key);\n    })\n  }\n}\n\nrequest(options, callback);\n```\n\nUsing the ESP8266 Arduino HTTPClient library, an HTTPS GET request would look like this (replacing `---` with your own values in the appropriate locations):\n\n```arduino\n/// based on\n/// https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266HTTPClient/examples/Authorization/Authorization.ino\n\n#include <Arduino.h>\n#include <ESP8266WiFi.h>\n#include <ESP8266WiFiMulti.h>\n#include <ESP8266HTTPClient.h>\n\nESP8266WiFiMulti WiFiMulti;\n\nconst char* ssid = \"---\";\nconst char* password = \"---\";\n\nconst char* host = \"io.adafruit.com\";\n\nconst char* io_key = \"---\";\nconst char* path_with_username = \"/api/v2/---/dashboards\";\n\n// Use web browser to view and copy\n// SHA1 fingerprint of the certificate\nconst char* fingerprint = \"77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C 57 18\";\n\nvoid setup() {\n  Serial.begin(115200);\n\n  for(uint8_t t = 4; t > 0; t--) {\n    Serial.printf(\"[SETUP] WAIT %d...\\n\", t);\n    Serial.flush();\n    delay(1000);\n  }\n\n  WiFi.mode(WIFI_STA);\n  WiFiMulti.addAP(ssid, password);\n\n  // wait for WiFi connection\n  while(WiFiMulti.run() != WL_CONNECTED) {\n    Serial.print('.');\n    delay(1000);\n  }\n\n  Serial.println(\"[WIFI] connected!\");\n\n  HTTPClient http;\n\n  // start request with URL and TLS cert fingerprint for verification\n  http.begin(\"https://\" + String(host) + String(path_with_username), fingerprint);\n\n  // IO API authentication\n  http.addHeader(\"X-AIO-Key\", io_key);\n\n  // start connection and send HTTP header\n  int httpCode = http.GET();\n\n  // httpCode will be negative on error\n  if(httpCode > 0) {\n    // HTTP header has been send and Server response header has been handled\n    Serial.printf(\"[HTTP] GET response: %d\\n\", httpCode);\n\n    // HTTP 200 OK\n    if(httpCode == HTTP_CODE_OK) {\n      String payload = http.getString();\n      Serial.println(payload);\n    }\n\n    http.end();\n  }\n}\n\nvoid loop() {}\n```\n\n#### Client Libraries\n\nWe have client libraries to help you get started with your project: [Python](https://github.com/adafruit/io-client-python), [Ruby](https://github.com/adafruit/io-client-ruby), [Arduino C++](https://github.com/adafruit/Adafruit_IO_Arduino), [Javascript](https://github.com/adafruit/adafruit-io-node), and [Go](https://github.com/adafruit/io-client-go) are available. They're all open source, so if they don't already do what you want, you can fork and add any feature you'd like.\n\n",
+    "docsUrl": "",
+    "url": "https://api.apis.guru/v2/specs/adafruit.com/2.0.0/swagger.json",
+    "envVars": {},
+    "credentials": {
+        "fields": {
+            "server": {
+                "label": "Server",
+                "viewClass": "SelectView",
+                "model": [
+                    "https://io.adafruit.com/api/v2",
+                    "http://io.adafruit.com/api/v2",
+                    "--- Custom URL"
+                ],
+                "required": true
+            },
+            "otherServer": {
+                "label": "Custom Server URL",
+                "viewClass": "TextFieldView"
+            },
+            "auth_HeaderKey": {
+                "label": "X-AIO-Key (HeaderKey)",
+                "viewClass": "TextFieldView",
+                "note": "The AIO Key is used to restrict or grant access to your data. The key is unique, and you can generate a key per feed, and control it in many different ways. The easiest process is to just use your automatically generated master key. You can access this key right from the right-hand side of your dashboard or from an individual feed page."
+            },
+            "auth_HeaderSignature": {
+                "label": "X-AIO-Signature (HeaderSignature)",
+                "viewClass": "TextFieldView",
+                "note": "The AIO Signature is an AWS inspired request signature."
+            },
+            "auth_QueryKey": {
+                "label": "X-AIO-Key (QueryKey)",
+                "viewClass": "TextFieldView",
+                "note": "The AIO Key is used to restrict or grant access to your data. The key is unique, and you can generate a key per feed, and control it in many different ways. The easiest process is to just use your automatically generated master key. You can access this key right from the right-hand side of your dashboard or from an individual feed page."
+            }
+        }
+    },
+    "triggers": {
+        "startFlow": {
+            "main": "./lib/triggers/startFlow.js",
+            "type": "polling",
+            "title": "Start Flow",
+            "fields": {}
+        }
+    },
+    "actions": {
+        "currentUser": {
+            "main": "./lib/actions/currentUser.js",
+            "title": "Get information about the current user",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/currentUser.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createWebhookFeedData": {
+            "main": "./lib/actions/createWebhookFeedData.js",
+            "title": "Send data to a feed via webhook URL.",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createWebhookFeedData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createRawWebhookFeedData": {
+            "main": "./lib/actions/createRawWebhookFeedData.js",
+            "title": "Send arbitrary data to a feed via webhook URL.",
+            "description": "The raw data webhook receiver accepts POST requests and stores the raw request body on your feed. This is useful when you don't have control of the webhook sender. If feed history is turned on, payloads will be truncated at 1024 bytes. If feed history is turned off, payloads will be truncated at 100KB.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createRawWebhookFeedData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyActivities": {
+            "main": "./lib/actions/destroyActivities.js",
+            "title": "All activities for current user",
+            "description": "Delete all your activities.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyActivities.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allActivities": {
+            "main": "./lib/actions/allActivities.js",
+            "title": "All activities for current user",
+            "description": "The Activities endpoint returns information about the user's activities.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allActivities.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getActivity": {
+            "main": "./lib/actions/getActivity.js",
+            "title": "Get activities by type for current user",
+            "description": "The Activities endpoint returns information about the user's activities.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getActivity.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allDashboards": {
+            "main": "./lib/actions/allDashboards.js",
+            "title": "All dashboards for current user",
+            "description": "The Dashboards endpoint returns information about the user's dashboards.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allDashboards.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createDashboard": {
+            "main": "./lib/actions/createDashboard.js",
+            "title": "Create a new Dashboard",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createDashboard.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allBlocks": {
+            "main": "./lib/actions/allBlocks.js",
+            "title": "All blocks for current user",
+            "description": "The Blocks endpoint returns information about the user's blocks.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allBlocks.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createBlock": {
+            "main": "./lib/actions/createBlock.js",
+            "title": "Create a new Block",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createBlock.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyBlock": {
+            "main": "./lib/actions/destroyBlock.js",
+            "title": "Delete an existing Block",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyBlock.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getBlock": {
+            "main": "./lib/actions/getBlock.js",
+            "title": "Returns Block based on ID",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getBlock.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateBlock": {
+            "main": "./lib/actions/updateBlock.js",
+            "title": "Update properties of an existing Block",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateBlock.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceBlock": {
+            "main": "./lib/actions/replaceBlock.js",
+            "title": "Replace an existing Block",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceBlock.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyDashboard": {
+            "main": "./lib/actions/destroyDashboard.js",
+            "title": "Delete an existing Dashboard",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyDashboard.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getDashboard": {
+            "main": "./lib/actions/getDashboard.js",
+            "title": "Returns Dashboard based on ID",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getDashboard.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateDashboard": {
+            "main": "./lib/actions/updateDashboard.js",
+            "title": "Update properties of an existing Dashboard",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateDashboard.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceDashboard": {
+            "main": "./lib/actions/replaceDashboard.js",
+            "title": "Replace an existing Dashboard",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceDashboard.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allFeeds": {
+            "main": "./lib/actions/allFeeds.js",
+            "title": "All feeds for current user",
+            "description": "The Feeds endpoint returns information about the user's feeds. The response includes the latest value of each feed, and other metadata about each feed.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allFeeds.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createFeed": {
+            "main": "./lib/actions/createFeed.js",
+            "title": "Create a new Feed",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyFeed": {
+            "main": "./lib/actions/destroyFeed.js",
+            "title": "Delete an existing Feed",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getFeed": {
+            "main": "./lib/actions/getFeed.js",
+            "title": "Get feed by feed key",
+            "description": "Returns feed based on the feed key",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateFeed": {
+            "main": "./lib/actions/updateFeed.js",
+            "title": "Update properties of an existing Feed",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceFeed": {
+            "main": "./lib/actions/replaceFeed.js",
+            "title": "Replace an existing Feed",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allData": {
+            "main": "./lib/actions/allData.js",
+            "title": "Get all data for the given feed",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createData": {
+            "main": "./lib/actions/createData.js",
+            "title": "Create new Data",
+            "description": "Create new data records on the given feed.\n\n**NOTE:** when feed history is on, data `value` size is limited to 1KB, when feed history is turned off data value size is limited to 100KB.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "batchCreateData": {
+            "main": "./lib/actions/batchCreateData.js",
+            "title": "Create multiple new Data records",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/batchCreateData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "chartData": {
+            "main": "./lib/actions/chartData.js",
+            "title": "Chart data for current feed",
+            "description": "The Chart API is what we use on io.adafruit.com to populate charts over varying timespans with a consistent number of data points. The maximum number of points returned is 480. This API works by aggregating slices of time into a single value by averaging.\n\nAll time-based parameters are optional, if none are given it will default to 1 hour at the finest-grained resolution possible.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/chartData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "firstData": {
+            "main": "./lib/actions/firstData.js",
+            "title": "First Data in Queue",
+            "description": "Get the oldest data point in the feed. This request sets the queue pointer to the beginning of the feed.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/firstData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "lastData": {
+            "main": "./lib/actions/lastData.js",
+            "title": "Last Data in Queue",
+            "description": "Get the most recent data point in the feed. This request sets the queue pointer to the end of the feed.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/lastData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "nextData": {
+            "main": "./lib/actions/nextData.js",
+            "title": "Next Data in Queue",
+            "description": "Get the next newest data point in the feed. If queue processing hasn't been started, the first data point in the feed will be returned.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/nextData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "previousData": {
+            "main": "./lib/actions/previousData.js",
+            "title": "Previous Data in Queue",
+            "description": "Get the previously processed data point in the feed. NOTE: this method doesn't move the processing queue pointer.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/previousData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "retainData": {
+            "main": "./lib/actions/retainData.js",
+            "title": "Last Data in MQTT CSV format",
+            "description": "Get the most recent data point in the feed in an MQTT compatible CSV format: `value,lat,lon,ele`",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/retainData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyData": {
+            "main": "./lib/actions/destroyData.js",
+            "title": "Delete existing Data",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getData": {
+            "main": "./lib/actions/getData.js",
+            "title": "Returns data based on feed key",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateData": {
+            "main": "./lib/actions/updateData.js",
+            "title": "Update properties of existing Data",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceData": {
+            "main": "./lib/actions/replaceData.js",
+            "title": "Replace existing Data",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getFeedDetails": {
+            "main": "./lib/actions/getFeedDetails.js",
+            "title": "Get detailed feed by feed key",
+            "description": "Returns more detailed feed record based on the feed key",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getFeedDetails.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allGroups": {
+            "main": "./lib/actions/allGroups.js",
+            "title": "All groups for current user",
+            "description": "The Groups endpoint returns information about the user's groups. The response includes the latest value of each feed in the group, and other metadata about the group.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allGroups.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createGroup": {
+            "main": "./lib/actions/createGroup.js",
+            "title": "Create a new Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyGroup": {
+            "main": "./lib/actions/destroyGroup.js",
+            "title": "Delete an existing Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getGroup": {
+            "main": "./lib/actions/getGroup.js",
+            "title": "Returns Group based on ID",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateGroup": {
+            "main": "./lib/actions/updateGroup.js",
+            "title": "Update properties of an existing Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceGroup": {
+            "main": "./lib/actions/replaceGroup.js",
+            "title": "Replace an existing Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "addFeedToGroup": {
+            "main": "./lib/actions/addFeedToGroup.js",
+            "title": "Add an existing Feed to a Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/addFeedToGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createGroupData": {
+            "main": "./lib/actions/createGroupData.js",
+            "title": "Create new data for multiple feeds in a group",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createGroupData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allGroupFeeds": {
+            "main": "./lib/actions/allGroupFeeds.js",
+            "title": "All feeds for current user in a given group",
+            "description": "The Group Feeds endpoint returns information about the user's feeds. The response includes the latest value of each feed, and other metadata about each feed, but only for feeds within the given group.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allGroupFeeds.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createGroupFeed": {
+            "main": "./lib/actions/createGroupFeed.js",
+            "title": "Create a new Feed in a Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createGroupFeed.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allGroupFeedData": {
+            "main": "./lib/actions/allGroupFeedData.js",
+            "title": "All data for current feed in a specific group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allGroupFeedData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createGroupFeedData": {
+            "main": "./lib/actions/createGroupFeedData.js",
+            "title": "Create new Data in a feed belonging to a particular group",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createGroupFeedData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "batchCreateGroupFeedData": {
+            "main": "./lib/actions/batchCreateGroupFeedData.js",
+            "title": "Create multiple new Data records in a feed belonging to a particular group",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/batchCreateGroupFeedData.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "removeFeedFromGroup": {
+            "main": "./lib/actions/removeFeedFromGroup.js",
+            "title": "Remove a Feed from a Group",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/removeFeedFromGroup.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getCurrentUserThrottle": {
+            "main": "./lib/actions/getCurrentUserThrottle.js",
+            "title": "Get the user's data rate limit and current activity level.",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getCurrentUserThrottle.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allTokens": {
+            "main": "./lib/actions/allTokens.js",
+            "title": "All tokens for current user",
+            "description": "The Tokens endpoint returns information about the user's tokens.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allTokens.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createToken": {
+            "main": "./lib/actions/createToken.js",
+            "title": "Create a new Token",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createToken.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyToken": {
+            "main": "./lib/actions/destroyToken.js",
+            "title": "Delete an existing Token",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyToken.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getToken": {
+            "main": "./lib/actions/getToken.js",
+            "title": "Returns Token based on ID",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getToken.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateToken": {
+            "main": "./lib/actions/updateToken.js",
+            "title": "Update properties of an existing Token",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateToken.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceToken": {
+            "main": "./lib/actions/replaceToken.js",
+            "title": "Replace an existing Token",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceToken.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allTriggers": {
+            "main": "./lib/actions/allTriggers.js",
+            "title": "All triggers for current user",
+            "description": "The Triggers endpoint returns information about the user's triggers.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allTriggers.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createTrigger": {
+            "main": "./lib/actions/createTrigger.js",
+            "title": "Create a new Trigger",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createTrigger.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyTrigger": {
+            "main": "./lib/actions/destroyTrigger.js",
+            "title": "Delete an existing Trigger",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyTrigger.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getTrigger": {
+            "main": "./lib/actions/getTrigger.js",
+            "title": "Returns Trigger based on ID",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getTrigger.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updateTrigger": {
+            "main": "./lib/actions/updateTrigger.js",
+            "title": "Update properties of an existing Trigger",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updateTrigger.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replaceTrigger": {
+            "main": "./lib/actions/replaceTrigger.js",
+            "title": "Replace an existing Trigger",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replaceTrigger.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "allPermissions": {
+            "main": "./lib/actions/allPermissions.js",
+            "title": "All permissions for current user and type",
+            "description": "The Permissions endpoint returns information about the user's permissions.\n",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/allPermissions.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "createPermission": {
+            "main": "./lib/actions/createPermission.js",
+            "title": "Create a new Permission",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/createPermission.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "destroyPermission": {
+            "main": "./lib/actions/destroyPermission.js",
+            "title": "Delete an existing Permission",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/destroyPermission.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "getPermission": {
+            "main": "./lib/actions/getPermission.js",
+            "title": "Returns Permission based on ID",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/getPermission.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "updatePermission": {
+            "main": "./lib/actions/updatePermission.js",
+            "title": "Update properties of an existing Permission",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/updatePermission.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        },
+        "replacePermission": {
+            "main": "./lib/actions/replacePermission.js",
+            "title": "Replace an existing Permission",
+            "description": "",
+            "fields": {
+                "verbose": {
+                    "viewClass": "CheckBoxView",
+                    "label": "Debug this step (log more data)"
+                },
+                "body_content_type": {
+                    "viewClass": "SelectView",
+                    "label": "Body Content-Type",
+                    "required": true,
+                    "prompt": "Choose a body Content-Type.",
+                    "model": {
+                        "application/json": "application/json",
+                        "application/x-www-form-urlencoded": "application/x-www-form-urlencoded"
+                    }
+                }
+            },
+            "metadata": {
+                "in": "./lib/schemas/replacePermission.in.json",
+                "out": {
+                    "type": "object"
+                }
+            }
+        }
+    }
+}

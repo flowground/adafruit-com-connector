@@ -1,0 +1,21 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "id": {
+            "required": true,
+            "type": "string"
+        },
+        "requestBody": {
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    }
+}

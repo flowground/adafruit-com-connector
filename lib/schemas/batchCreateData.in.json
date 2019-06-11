@@ -1,0 +1,40 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "required": true,
+            "type": "string"
+        },
+        "feed_key": {
+            "required": true,
+            "type": "string"
+        },
+        "requestBody": {
+            "items": {
+                "properties": {
+                    "created_at": {
+                        "format": "dateTime",
+                        "type": "string"
+                    },
+                    "ele": {
+                        "type": "string"
+                    },
+                    "epoch": {
+                        "type": "number"
+                    },
+                    "lat": {
+                        "type": "string"
+                    },
+                    "lon": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "type": "array"
+        }
+    }
+}
